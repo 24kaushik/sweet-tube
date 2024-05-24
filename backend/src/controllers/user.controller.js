@@ -17,20 +17,29 @@ const registerUser = asyncHandler(async (req, res) => {
     $or: [{ username }, { email }],
   });
 
-  if (!existedUser) {
+  if (existedUser) {
     throw new ApiError(409, "User already exists!");
   }
 
-  console.log(files);
   const avatarLocalPath = req.files?.avatar[0]?.path;
-  const coverImageLocalPath = req.files?.coverImage[0]?.path;
+  // const coverImageLocalPath = req.files?.coverImage[0]?.path;
 
+  let coverImageLocalPath;
+  if (
+    req.files &&
+    Array.isArray(req.files.coverImage) &&
+    req.files.coverImage.length > 0
+  ) {
+    coverImageLocalPath = req.files.coverImage[0].path;
+  }
+  
   if (!avatarLocalPath) {
     throw new ApiError(400, "Avatar is required!");
   }
+
   const avatar = await uploadOnCloudinary(avatarLocalPath);
   const coverImage = await uploadOnCloudinary(coverImageLocalPath);
-
+  console.log(avatar);
   if (!avatar) {
     throw new ApiError(500, "Could not upload avatar");
   }
@@ -52,7 +61,9 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(500, "Something went wrong while registering the user.");
   }
 
-  return res.status(201).json(new ApiResponse(200, createdUser, "User registered successfully"));
+  return res
+    .status(201)
+    .json(new ApiResponse(201, createdUser, "User registered successfully"));
 });
 
 export { registerUser };
