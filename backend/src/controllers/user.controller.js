@@ -21,20 +21,24 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(409, "User already exists!");
   }
 
-  const avatarLocalPath = req.files?.avatar[0]?.path;
+
   // const coverImageLocalPath = req.files?.coverImage[0]?.path;
 
   let coverImageLocalPath;
-  if (
-    req.files &&
-    Array.isArray(req.files.coverImage) &&
-    req.files.coverImage.length > 0
-  ) {
-    coverImageLocalPath = req.files.coverImage[0].path;
-  }
+  let avatarLocalPath;
+  if (req.files) {
+    if (Array.isArray(req.files.avatar) && req.files.avatar.length > 0) {
+      avatarLocalPath = req.files?.avatar[0]?.path;
+    } else {
+      throw new ApiError(400, "Avatar is required!");
+    }
 
-  if (!avatarLocalPath) {
-    throw new ApiError(400, "Avatar is required!");
+    if (
+      Array.isArray(req.files.coverImage) &&
+      req.files.coverImage.length > 0
+    ) {
+      coverImageLocalPath = req.files.coverImage[0].path;
+    }
   }
 
   const avatar = await uploadOnCloudinary(avatarLocalPath);
@@ -87,7 +91,7 @@ const generateAccessAndRefreshTokens = async (userId) => {
 const loginUser = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body;
 
-  if (!username || !email) {
+  if (!username && !email) {
     throw new ApiError(400, "Username or email is required!");
   }
 
@@ -154,11 +158,11 @@ const logoutUser = asyncHandler(async (req, res) => {
   };
 
   return res
-  .status(200)
-  .clearCookie("accessToken", options)
-  .clearCookie("refreshToken", options)
-  .clearCookie("refreshToken", options)
-  .json(new ApiResponse(200, {}, "Logged out successfully"))
+    .status(200)
+    .clearCookie("accessToken", options)
+    .clearCookie("refreshToken", options)
+    .clearCookie("refreshToken", options)
+    .json(new ApiResponse(200, {}, "Logged out successfully"));
 });
 
 export { registerUser, loginUser, logoutUser };
