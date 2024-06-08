@@ -82,6 +82,7 @@ const generateAccessAndRefreshTokens = async (userId) => {
 
     return { accessToken, refreshToken };
   } catch (error) {
+    console.log(error);
     throw new ApiError(
       500,
       "Something went wrong while generating refresh, access tokens"
@@ -144,8 +145,8 @@ const logoutUser = asyncHandler(async (req, res) => {
   await User.findByIdAndUpdate(
     req.user._id,
     {
-      $set: {
-        refreshToken: undefined,
+      $unset: {
+        refreshToken: 1,
       },
     },
     {
@@ -274,11 +275,15 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     throw new ApiError(500, "Error while uploading avatar");
   }
 
-  const user = await User.findByIdAndUpdate(req.user?._id, {
-    $set: {
-      avatar: avatar.url,
+  const user = await User.findByIdAndUpdate(
+    req.user?._id,
+    {
+      $set: {
+        avatar: avatar.url,
+      },
     },
-  }).select("-password -refreshToken");
+    { new: true }
+  ).select("-password -refreshToken");
 
   return res
     .status(200)
@@ -297,11 +302,15 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
     throw new ApiError(500, "Error while uploading cover image");
   }
 
-  const user = await User.findByIdAndUpdate(req.user?._id, {
-    $set: {
-      coverImage: coverImage.url,
+  const user = await User.findByIdAndUpdate(
+    req.user?._id,
+    {
+      $set: {
+        coverImage: coverImage.url,
+      },
     },
-  }).select("-password -refreshToken");
+    { new: true }
+  ).select("-password -refreshToken");
 
   return res
     .status(200)
@@ -346,7 +355,7 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
           $size: "$subscribedTo",
         },
         isSubscribed: {
-          $condition: {
+          $cond: {
             if: { $in: [req.user?._id, "$subscribers.subscriber"] },
             then: true,
             else: false,
