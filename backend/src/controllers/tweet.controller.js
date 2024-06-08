@@ -8,11 +8,14 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 const createTweet = asyncHandler(async (req, res) => {
   const { content } = req.body;
 
-  if (!content?.length) {
+  if (!content?.trim().length) {
     throw new ApiError(400, "Please send tweet content");
   }
 
-  const tweet = await Tweet.create({ owner: req.user._id, content });
+  const tweet = await Tweet.create({
+    owner: req.user._id,
+    content: content.trim(),
+  });
 
   if (!tweet) {
     throw new ApiError(500, "Error creating a new tweet");
@@ -25,6 +28,7 @@ const createTweet = asyncHandler(async (req, res) => {
 
 const getUserTweets = asyncHandler(async (req, res) => {
   // TODO: Paginate
+  // TODO send likes and comments too
 
   const { userId } = req.params;
 
@@ -74,7 +78,29 @@ const getUserTweets = asyncHandler(async (req, res) => {
 });
 
 const updateTweet = asyncHandler(async (req, res) => {
-  //TODO: update tweet
+  const { tweetId } = req.params;
+  const { newContent } = req.body;
+
+  if (!tweetId?.trim().length || !newContent?.trim().length) {
+    throw new ApiError(400, "Tweet id or new content is missing");
+  }
+
+  const tweet = await Tweet.findById(tweetId);
+
+  if (!tweet) {
+    throw new ApiError(404, "No tweet found with this id");
+  }
+
+  if (!tweet.owner.equals(req.user._id)) {
+    throw new ApiError(401, "You are not the owner of this tweet");
+  }
+
+  tweet.content = newContent.trim();
+  await tweet.save({ validateBeforeSave: false });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Tweet updated successfully"));
 });
 
 const deleteTweet = asyncHandler(async (req, res) => {
