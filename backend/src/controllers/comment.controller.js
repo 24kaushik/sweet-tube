@@ -10,7 +10,10 @@ const getVideoComments = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10 } = req.query;
 });
 
-const addComment = asyncHandler(async (req, res) => {
+const addVideoComment = asyncHandler(async (req, res) => {
+  // TODO: add a comment to a video
+});
+const addPostComment = asyncHandler(async (req, res) => {
   // TODO: add a comment to a video
 });
 
@@ -22,4 +25,15 @@ const deleteComment = asyncHandler(async (req, res) => {
   // TODO: delete a comment
 });
 
-export { getVideoComments, addComment, updateComment, deleteComment };
+const getPostComments = asyncHandler(async (req, res) => {
+  // TODO: delete a comment
+});
+
+export {
+  getVideoComments,
+  addVideoComment,
+  updateComment,
+  deleteComment,
+  getPostComments,
+  addPostComment
+};
