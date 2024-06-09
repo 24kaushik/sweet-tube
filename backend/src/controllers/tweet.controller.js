@@ -92,7 +92,7 @@ const updateTweet = asyncHandler(async (req, res) => {
   }
 
   if (!tweet.owner.equals(req.user._id)) {
-    throw new ApiError(401, "You are not the owner of this tweet");
+    throw new ApiError(401, "Unauthorized access");
   }
 
   tweet.content = newContent.trim();
@@ -104,11 +104,63 @@ const updateTweet = asyncHandler(async (req, res) => {
 });
 
 const deleteTweet = asyncHandler(async (req, res) => {
-  //TODO: delete tweet
+  // TODO delete all its likes and comments
+  const { tweetId } = req.params;
+
+  if (!tweetId) {
+    throw new ApiError(400, "Please provide a tweet id");
+  }
+
+  const tweet = await Tweet.findById(tweetId);
+
+  if (!tweet) {
+    throw new ApiError(404, "No tweet found with this id");
+  }
+  if (!tweet.owner.equals(req.user._id)) {
+    throw new ApiError(401, "Unauthorized access");
+  }
+
+  await Tweet.findByIdAndDelete(tweetId);
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Tweet deleted successfully"));
 });
 
 const getAllTweets = asyncHandler(async (req, res) => {
-  //TODO: get tweets
+  // TODO paginate, send likes and comments too
+  // TODO send relevant tweets
+
+  const tweets = await Tweet.aggregate([
+    {
+      $lookup: {
+        from: "users",
+        localField: "owner",
+        foreignField: "_id",
+        as: "owner",
+        pipeline: [
+          {
+            $project: {
+              username: 1,
+              fullName: 1,
+              avatar: 1,
+            },
+          },
+        ],
+      },
+    },
+    {
+      $addFields: {
+        owner: {
+          $first: "$owner",
+        },
+      },
+    },
+  ]);
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, tweets, "Tweets retrieved successfully"));
 });
 
 export { createTweet, getUserTweets, updateTweet, deleteTweet, getAllTweets };
