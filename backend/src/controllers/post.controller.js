@@ -28,7 +28,6 @@ const createPost = asyncHandler(async (req, res) => {
 
 const getUserPosts = asyncHandler(async (req, res) => {
   // TODO: Paginate
-  // TODO send likes and comments too
 
   const { userId } = req.params;
 
@@ -60,10 +59,42 @@ const getUserPosts = asyncHandler(async (req, res) => {
       },
     },
     {
+      $lookup: {
+        from: "likes",
+        localField: "_id",
+        foreignField: "post",
+        as: "likes",
+      },
+    },
+    {
+      $lookup: {
+        from: "comments",
+        localField: "_id",
+        foreignField: "post",
+        as: "comments",
+      },
+    },
+    {
       $addFields: {
         owner: {
           $first: "$owner",
         },
+        likesCount: {
+          $size: "$likes",
+        },
+        commentsCount: {
+          $size: "$comments",
+        },
+      },
+    },
+    {
+      $project: {
+        owner: 1,
+        content: 1,
+        createdAt: 1,
+        updatedAt: 1,
+        likesCount: 1,
+        commentsCount: 1,
       },
     },
   ]);
@@ -81,7 +112,7 @@ const updatePost = asyncHandler(async (req, res) => {
   const { postId } = req.params;
   const { newContent } = req.body;
 
-  if(!isValidObjectId(postId)){
+  if (!isValidObjectId(postId)) {
     throw new ApiError(400, "Please provide a valid post id");
   }
   if (!newContent?.trim().length) {
@@ -130,4 +161,4 @@ const deletePost = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "Post deleted successfully"));
 });
 
-export { createPost, getUserPosts, updatePost, deletePost,  };
+export { createPost, getUserPosts, updatePost, deletePost };
