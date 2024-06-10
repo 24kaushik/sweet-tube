@@ -1,11 +1,11 @@
 import mongoose, { isValidObjectId } from "mongoose";
 import { Post } from "../models/post.model.js";
-import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 const createPost = asyncHandler(async (req, res) => {
+  // TODO allow users to post image too
   const { content } = req.body;
 
   if (!content?.trim().length) {
@@ -32,7 +32,7 @@ const getUserPosts = asyncHandler(async (req, res) => {
 
   const { userId } = req.params;
 
-  if (!mongoose.Types.ObjectId.isValid(userId)) {
+  if (!isValidObjectId(userId)) {
     throw new ApiError(400, "Please provide a valid user id");
   }
 
@@ -81,7 +81,7 @@ const updatePost = asyncHandler(async (req, res) => {
   const { postId } = req.params;
   const { newContent } = req.body;
 
-  if(!mongoose.Types.ObjectId.isValid(postId)){
+  if(!isValidObjectId(postId)){
     throw new ApiError(400, "Please provide a valid post id");
   }
   if (!newContent?.trim().length) {
@@ -110,7 +110,7 @@ const deletePost = asyncHandler(async (req, res) => {
   // TODO delete all its likes and comments
   const { postId } = req.params;
 
-  if (!mongoose.Types.ObjectId.isValid(postId)) {
+  if (!isValidObjectId(postId)) {
     throw new ApiError(400, "Please provide a valid post id");
   }
 
@@ -129,6 +129,5 @@ const deletePost = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, {}, "Post deleted successfully"));
 });
-
 
 export { createPost, getUserPosts, updatePost, deletePost,  };

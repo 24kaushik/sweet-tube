@@ -18,7 +18,7 @@ const toggleCommentLike = asyncHandler(async (req, res) => {
 const togglePostLike = asyncHandler(async (req, res) => {
   const { postId } = req.params;
   
-  if (!mongoose.Types.ObjectId.isValid(postId)) {
+  if (!isValidObjectId(postId)) {
     throw new ApiError(400, "Please provide a valid post id");
   }
 
