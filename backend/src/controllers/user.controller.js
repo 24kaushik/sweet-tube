@@ -40,6 +40,13 @@ const registerUser = asyncHandler(async (req, res) => {
     ) {
       coverImageLocalPath = req.files.coverImage[0].path;
     }
+
+    if (
+      !req.files.avatar["mimetype"].split("/")[0] === "image" ||
+      !req.files.coverImage["mimetype"].split("/")[0] === "image"
+    ) {
+      throw new ApiError(400, "Please send an image file only");
+    }
   }
 
   const avatar = await uploadOnCloudinary(avatarLocalPath);
@@ -268,6 +275,9 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
   if (!avatarLocalPath) {
     throw new ApiError(400, "Avatar file is missing");
   }
+  if (!req.file["mimetype"].split("/")[0] === "image") {
+    throw new ApiError(400, "Please send an image file only");
+  }
 
   const avatar = await uploadOnCloudinary(avatarLocalPath);
 
@@ -294,6 +304,9 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
   const coverImageLocalPath = req.file?.path;
   if (!coverImageLocalPath) {
     throw new ApiError(400, "Cover image file is missing");
+  }
+  if (!req.file["mimetype"].split("/")[0] === "image") {
+    throw new ApiError(400, "Please send an image file only");
   }
 
   const coverImage = await uploadOnCloudinary(coverImageLocalPath);
