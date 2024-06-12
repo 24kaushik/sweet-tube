@@ -42,8 +42,8 @@ const registerUser = asyncHandler(async (req, res) => {
     }
 
     if (
-      !req.files.avatar["mimetype"].split("/")[0] === "image" ||
-      !req.files.coverImage["mimetype"].split("/")[0] === "image"
+      !req.files.avatar[0]["mimetype"].split("/")[0] === "image" ||
+      !req.files.coverImage[0]["mimetype"].split("/")[0] === "image"
     ) {
       throw new ApiError(400, "Please send an image file only");
     }

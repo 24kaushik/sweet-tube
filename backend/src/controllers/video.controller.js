@@ -12,8 +12,71 @@ const getAllVideos = asyncHandler(async (req, res) => {
 });
 
 const publishAVideo = asyncHandler(async (req, res) => {
-  const { title, description } = req.body;
   // TODO: get video, upload to cloudinary, create video
+  // get video, thumbnail , title, desc
+  // take pubsish (true/false)
+  // upload to cloudinary
+  // create db entry
+  // return response
+  const videoLocalPath = req.files?.videoFile[0]?.path;
+  if (!videoLocalPath) {
+    throw new ApiError(400, "Video is missing");
+  }
+
+  const thumbnailLocalPath = req.files?.thumbnail[0]?.path;
+  if (!thumbnailLocalPath) {
+    throw new ApiError(400, "Thumbnail is missing");
+  }
+
+  if (!req.files.videoFile[0]["mimetype"].split("/")[0] === "image") {
+    throw new ApiError(
+      400,
+      "Please send only a video file in videoFile property"
+    );
+  }
+
+  if (!req.files.thumbnail[0]["mimetype"].split("/")[0] === "image") {
+    throw new ApiError(
+      400,
+      "Please send only a image file in thumbnail property"
+    );
+  }
+
+  const { title, description, publish = true } = req.body;
+  if (!title?.trim().length) {
+    throw new ApiError(400, "Title is missing");
+  }
+  if (!description?.trim().length) {
+    throw new ApiError(400, "Description is missing");
+  }
+
+  const uploadedVideo = await uploadOnCloudinary(videoLocalPath);
+  const uploadedThumbnail = await uploadOnCloudinary(thumbnailLocalPath);
+
+  if (!uploadedVideo) {
+    throw new ApiError(500, "Could not upload video");
+  }
+  if (!uploadedThumbnail) {
+    throw new ApiError(500, "Could not upload thumbnail");
+  }
+
+  const video = await Video.create({
+    videoFile: uploadedVideo.url,
+    thumbnail: uploadedThumbnail.url,
+    title: title.trim(),
+    description: description.trim(),
+    duration: uploadedVideo.duration,
+    isPublished: publish ? true : false,
+    owner: req.user._id,
+  });
+
+  if (!video) {
+    throw new ApiError(500, "Error creating entry in database");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Video uploaded successfully"));
 });
 
 const getVideoById = asyncHandler(async (req, res) => {
