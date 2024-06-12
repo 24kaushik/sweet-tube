@@ -8,26 +8,26 @@ export const errorHandler = (err, req, res, next) => {
       success: err.success,
     };
 
-    if (
-      process.env.ENVIRONMENT == "dev" ||
-      process.env.ENVIRONMENT == "development"
-    ) {
+    if (process.env.ENVIRONMENT == "dev") {
+      response.stack = err.stack;
+    }
+    res.status(err.statusCode).json(response);
+
+  } else {
+    const response = {
+      statusCode: 500,
+      message:
+        process.env.ENVIRONMENT == "dev"
+          ? err.message
+          : "Internal server error!",
+      success: false,
+    };
+
+    if (process.env.ENVIRONMENT == "dev") {
+      console.log(err);
       response.stack = err.stack;
     }
 
-    res.status(err.statusCode).json(response);
-  } else {    
-    if (
-      process.env.ENVIRONMENT == "dev" ||
-      process.env.ENVIRONMENT == "development"
-    ) {
-      console.log(err);
-    }
-    
-    res.status(500).json({
-      statusCode: 500,
-      message: "Internal server error!",
-      success: false,
-    });
+    res.status(500).json(response);
   }
 };
