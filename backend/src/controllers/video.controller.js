@@ -158,19 +158,54 @@ const updateVideo = asyncHandler(async (req, res) => {
   if (!video) {
     throw new ApiError(404, "Video not found");
   }
-  if(!video.owner.equals(req.user._id)){
-    throw new ApiError(401, "Unauthorized request")
+  if (!video.owner.equals(req.user._id)) {
+    throw new ApiError(401, "Unauthorized request");
   }
 
   video.title = title.trim();
   video.description = description.trim();
 
-  await video.save({validateBeforeSave: false});
+  await video.save({ validateBeforeSave: false });
 
   res.status(200).json(new ApiResponse(200, {}, "Video updated successfully"));
 });
 
-const updateVideoThumbnail = asyncHandler(async (req, res) => {});
+const updateVideoThumbnail = asyncHandler(async (req, res) => {
+  const { videoId } = req.params;
+  const thumbnailLocalPath = req.file?.path;
+  if (!thumbnailLocalPath) {
+    throw new ApiError(400, "Please send a thumbnail file");
+  }
+  if (!req.file["mimetype"].split("/")[0] === "image") {
+    throw new ApiError(
+      400,
+      "Please send only a image file in thumbnail property"
+    );
+  }
+  if (!isValidObjectId(videoId)) {
+    throw new ApiError(400, "Please send a valid video id");
+  }
+
+  const video = await Video.findById(videoId);
+  if (!video) {
+    throw new ApiError(404, "Video does not exists");
+  }
+  if (!video.owner.equals(req.user._id)) {
+    throw new ApiError(401, "Unauthorized access");
+  }
+
+  const uploadedThumbnail = await uploadOnCloudinary(thumbnailLocalPath);
+  if (!uploadedThumbnail) {
+    throw new ApiError(500, "Error uploading thumbnail");
+  }
+
+  video.thumbnail = uploadedThumbnail.url;
+  await video.save();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Thumbnail updated successfully"));
+});
 
 const deleteVideo = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
