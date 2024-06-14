@@ -210,10 +210,53 @@ const updateVideoThumbnail = asyncHandler(async (req, res) => {
 const deleteVideo = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
   //TODO: delete video
+  //TODO: delete all likes and comments
+  if (!isValidObjectId(videoId)) {
+    throw new ApiError(400, "Please send a valid video id");
+  }
+
+  const video = await Video.findById(videoId);
+  if (!video) {
+    throw new ApiError(404, "Video does not exists");
+  }
+
+  if (video.owner.equals(req.user._id)) {
+    throw new ApiError(401, "Unauthorized access");
+  }
+
+  await Video.findByIdAndDelete(videoId);
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Video deleted successfully"));
 });
 
 const togglePublishStatus = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
+  if (!isValidObjectId(videoId)) {
+    throw new ApiError(400, "Please send a valid video id");
+  }
+
+  const video = await Video.findById(videoId);
+  if (!video) {
+    throw new ApiError(404, "Video does not exists");
+  }
+
+  if (video.owner.equals(req.user._id)) {
+    throw new ApiError(401, "Unauthorized access");
+  }
+
+  video.isPublished = !video.isPublished;
+  await video.save();
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { isPublished: video.isPublished },
+        "Publish status toggled"
+      )
+    );
 });
 
 export {
