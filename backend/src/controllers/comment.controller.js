@@ -7,7 +7,6 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { Video } from "../models/video.model.js";
 
 const getVideoComments = asyncHandler(async (req, res) => {
-  //TODO: get all comments for a video
   const { videoId } = req.params;
   const { page = 1, limit = 10 } = req.query;
   //TODO send a flag too that if the comment belongs to user
@@ -133,7 +132,6 @@ const addPostComment = asyncHandler(async (req, res) => {
 });
 
 const updateComment = asyncHandler(async (req, res) => {
-  // TODO: update a comment
   const { commentId } = req.params;
   const { newContent } = req.body;
 
@@ -159,7 +157,6 @@ const updateComment = asyncHandler(async (req, res) => {
 });
 
 const deleteComment = asyncHandler(async (req, res) => {
-  // TODO: delete a comment
   // TODO delete likes too
 
   const { commentId } = req.params;
@@ -186,7 +183,6 @@ const deleteComment = asyncHandler(async (req, res) => {
 });
 
 const getPostComments = asyncHandler(async (req, res) => {
-  // TODO: delete a comment
   //TODO send a flag too that if the comment belongs to user
   // TODO paginate
 
