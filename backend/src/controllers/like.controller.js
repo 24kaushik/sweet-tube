@@ -8,7 +8,6 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 
 const toggleVideoLike = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
-  //TODO: toggle like on video
   if (!isValidObjectId(videoId)) {
     throw new ApiError(400, "Please provide a valid video id");
   }
@@ -34,7 +33,6 @@ const toggleVideoLike = asyncHandler(async (req, res) => {
 
 const toggleCommentLike = asyncHandler(async (req, res) => {
   const { commentId } = req.params;
-  //TODO: toggle like on comment
   if (!isValidObjectId(commentId)) {
     throw new ApiError(400, "Please provide a valid comment id");
   }
@@ -85,7 +83,6 @@ const togglePostLike = asyncHandler(async (req, res) => {
 });
 
 const getLikedVideos = asyncHandler(async (req, res) => {
-  //TODO: get all liked videos
   //TODO: paginate
   const likes = await Like.find({ likedBy: req.user._id });
   if (!likes?.length) {

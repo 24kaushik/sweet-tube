@@ -75,7 +75,6 @@ const publishAVideo = asyncHandler(async (req, res) => {
 
 const getVideoById = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
-  //TODO send likes and comment count
   //TODO: get video by id
   //TODO check if current user is logged in? send one more field "has Subscribed"
 
@@ -122,12 +121,40 @@ const getVideoById = asyncHandler(async (req, res) => {
       },
     },
     {
+      $lookup: {
+        from: "likes",
+        localField: "_id",
+        foreignField: "video",
+        as: "likes",
+      },
+    },
+    {
+      $lookup: {
+        from: "comments",
+        localField: "_id",
+        foreignField: "video",
+        as: "comments",
+      },
+    },
+    {
       $addFields: {
         owner: {
           $first: "$owner",
         },
+        likesCount: {
+          $size: "$likes",
+        },
+        commentsCount: {
+          $size: "$comments",
+        },
       },
     },
+    {
+      $project:{
+        likes: 0,
+        comments: 0
+      }
+    }
   ]);
   if (!video.length) {
     throw new ApiError(404, "Video not found");
