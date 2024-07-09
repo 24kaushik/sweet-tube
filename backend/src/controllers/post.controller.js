@@ -3,6 +3,8 @@ import { Post } from "../models/post.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { Like } from "../models/like.model.js";
+import { Comment } from "../models/comment.model.js";
 
 const createPost = asyncHandler(async (req, res) => {
   // TODO allow users to post image too
@@ -138,7 +140,6 @@ const updatePost = asyncHandler(async (req, res) => {
 });
 
 const deletePost = asyncHandler(async (req, res) => {
-  // TODO delete all its likes and comments
   const { postId } = req.params;
 
   if (!isValidObjectId(postId)) {
@@ -155,7 +156,8 @@ const deletePost = asyncHandler(async (req, res) => {
   }
 
   await Post.findByIdAndDelete(postId);
-
+  await Like.deleteMany({post: postId});
+  await Comment.deleteMany({post: postId});
   return res
     .status(200)
     .json(new ApiResponse(200, {}, "Post deleted successfully"));
