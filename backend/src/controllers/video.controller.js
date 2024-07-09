@@ -1,5 +1,7 @@
 import mongoose, { isValidObjectId } from "mongoose";
 import { Video } from "../models/video.model.js";
+import { Like } from "../models/like.model.js";
+import { Comment } from "../models/comment.model.js";
 import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -75,7 +77,6 @@ const publishAVideo = asyncHandler(async (req, res) => {
 
 const getVideoById = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
-  //TODO: get video by id
   //TODO check if current user is logged in? send one more field "has Subscribed"
 
   if (!isValidObjectId(videoId)) {
@@ -150,14 +151,19 @@ const getVideoById = asyncHandler(async (req, res) => {
       },
     },
     {
-      $project:{
+      $project: {
         likes: 0,
-        comments: 0
-      }
-    }
+        comments: 0,
+      },
+    },
   ]);
   if (!video.length) {
     throw new ApiError(404, "Video not found");
+  }
+
+  //TODO: Check if the video belongs to user? send the video even if unpublished
+  if (!video[0].isPublished) {
+    throw new ApiError(401, "This video is private");
   }
   await Video.findByIdAndUpdate(videoId, { views: video[0].views + 1 });
 
@@ -168,7 +174,6 @@ const getVideoById = asyncHandler(async (req, res) => {
 
 const updateVideo = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
-  //TODO: update video details like title, description
   const { title, description } = req.body;
   if (!title?.trim().length) {
     throw new ApiError(400, "Please send title");
@@ -236,8 +241,6 @@ const updateVideoThumbnail = asyncHandler(async (req, res) => {
 
 const deleteVideo = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
-  //TODO: delete video
-  //TODO: delete all likes and comments
   if (!isValidObjectId(videoId)) {
     throw new ApiError(400, "Please send a valid video id");
   }
@@ -247,11 +250,13 @@ const deleteVideo = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Video does not exists");
   }
 
-  if (video.owner.equals(req.user._id)) {
+  if (!video.owner.equals(req.user._id)) {
     throw new ApiError(401, "Unauthorized access");
   }
 
   await Video.findByIdAndDelete(videoId);
+  await Like.deleteMany({ video: videoId });
+  await Comment.deleteMany({ video: videoId });
   return res
     .status(200)
     .json(new ApiResponse(200, {}, "Video deleted successfully"));

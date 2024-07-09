@@ -27,4 +27,8 @@ const uploadOnCloudinary = async (localFilePath) => {
   }
 };
 
+const deleteFromCloudinary = async ()=>{
+  //TODO while updating avatar, thumbnail,coverimage and deleting video, remove it from cloudinary too
+}
+
 export { uploadOnCloudinary };
