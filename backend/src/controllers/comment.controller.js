@@ -9,9 +9,9 @@ import { Video } from "../models/video.model.js";
 const getVideoComments = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
   const { page = 1, limit = 10 } = req.query;
-  //TODO send a flag too that if the comment belongs to user
   // TODO paginate
 
+  console.log(req.user)
   if (!isValidObjectId(videoId)) {
     throw new ApiError(400, "Please provide a valid video id");
   }
@@ -31,6 +31,7 @@ const getVideoComments = asyncHandler(async (req, res) => {
         pipeline: [
           {
             $project: {
+              _id: 1,
               username: 1,
               fullname: 1,
               avatar: 1,
@@ -55,6 +56,9 @@ const getVideoComments = asyncHandler(async (req, res) => {
         likesCount: {
           $size: "$likes",
         },
+        isOwner: {
+          $eq: [req.user?._id, {$first: "$owner._id"}]
+        }
       },
     },
     {
@@ -64,6 +68,7 @@ const getVideoComments = asyncHandler(async (req, res) => {
         createdAt: 1,
         updatedAt: 1,
         likesCount: 1,
+        isOwner: 1
       },
     },
   ]);

@@ -5,14 +5,17 @@ import {
   getVideoComments,
   updateComment,
   getPostComments,
-  addPostComment
+  addPostComment,
 } from "../controllers/comment.controller.js";
-import { verifyJWT } from "../middlewares/auth.middleware.js";
+import {
+  optionalVerifyJWT,
+  verifyJWT,
+} from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-router.route("/v/:videoId").get(getVideoComments);
-router.route("/p/:postId").get(getPostComments);
+router.route("/v/:videoId").get(optionalVerifyJWT, getVideoComments);
+router.route("/p/:postId").get(optionalVerifyJWT, getPostComments);
 
 // Secured Routes
 router.route("/v/:videoId").post(verifyJWT, addVideoComment);
