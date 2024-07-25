@@ -31,7 +31,7 @@ const createPost = asyncHandler(async (req, res) => {
   const post = await Post.create({
     owner: req.user._id,
     content: content.trim(),
-    image: image,
+    image: image?.url,
   });
 
   if (!post) {
@@ -127,15 +127,28 @@ const getUserPosts = asyncHandler(async (req, res) => {
 });
 
 const updatePost = asyncHandler(async (req, res) => {
-  // TODO allow users to update post image
   const { postId } = req.params;
   const { newContent } = req.body;
+  const imageLocalPath = req.file?.path;
 
   if (!isValidObjectId(postId)) {
     throw new ApiError(400, "Please provide a valid post id");
   }
   if (!newContent?.trim().length) {
     throw new ApiError(400, "New content is missing");
+  }
+
+  let image;
+
+  if (imageLocalPath) {
+    if (!req.file["mimetype"].split("/")[0] === "image") {
+      throw new ApiError(400, "Please send an image file only");
+    }
+
+    image = await uploadOnCloudinary(imageLocalPath);
+    if (!image.url) {
+      throw new ApiError(500, "Failed to upload image on server");
+    }
   }
 
   const post = await Post.findById(postId);
@@ -149,6 +162,7 @@ const updatePost = asyncHandler(async (req, res) => {
   }
 
   post.content = newContent.trim();
+  post.image = image?.url
   await post.save({ validateBeforeSave: false });
 
   return res
