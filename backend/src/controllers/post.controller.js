@@ -5,18 +5,33 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { Like } from "../models/like.model.js";
 import { Comment } from "../models/comment.model.js";
+import { uploadOnCloudinary } from "../utils/Cloudinary.js";
 
 const createPost = asyncHandler(async (req, res) => {
-  // TODO allow users to post image too
   const { content } = req.body;
+  const imageLocalPath = req.file?.path;
 
   if (!content?.trim().length) {
     throw new ApiError(400, "Please send post content");
   }
 
+  let image;
+
+  if (imageLocalPath) {
+    if (!req.file["mimetype"].split("/")[0] === "image") {
+      throw new ApiError(400, "Please send an image file only");
+    }
+
+    image = await uploadOnCloudinary(imageLocalPath);
+    if (!image.url) {
+      throw new ApiError(500, "Failed to upload image on server");
+    }
+  }
+
   const post = await Post.create({
     owner: req.user._id,
     content: content.trim(),
+    image: image,
   });
 
   if (!post) {
@@ -93,6 +108,7 @@ const getUserPosts = asyncHandler(async (req, res) => {
       $project: {
         owner: 1,
         content: 1,
+        image: 1,
         createdAt: 1,
         updatedAt: 1,
         likesCount: 1,
@@ -111,6 +127,7 @@ const getUserPosts = asyncHandler(async (req, res) => {
 });
 
 const updatePost = asyncHandler(async (req, res) => {
+  // TODO allow users to update post image
   const { postId } = req.params;
   const { newContent } = req.body;
 
@@ -156,8 +173,8 @@ const deletePost = asyncHandler(async (req, res) => {
   }
 
   await Post.findByIdAndDelete(postId);
-  await Like.deleteMany({post: postId});
-  await Comment.deleteMany({post: postId});
+  await Like.deleteMany({ post: postId });
+  await Comment.deleteMany({ post: postId });
   return res
     .status(200)
     .json(new ApiResponse(200, {}, "Post deleted successfully"));
