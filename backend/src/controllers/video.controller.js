@@ -7,6 +7,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { uploadOnCloudinary } from "../utils/Cloudinary.js";
 import { User } from "../models/user.model.js";
+import { Subscription } from "../models/subscription.model.js";
 
 const getAllVideos = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
@@ -77,7 +78,6 @@ const publishAVideo = asyncHandler(async (req, res) => {
 
 const getVideoById = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
-  //TODO check if current user is logged in? send one more field "has Subscribed"
   if (!isValidObjectId(videoId)) {
     throw new ApiError(400, "Please send a valid video id");
   }
@@ -160,7 +160,6 @@ const getVideoById = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Video not found");
   }
 
-  //TODO: Check if the video belongs to user? send the video even if unpublished
   if (!video[0].isPublished && !video[0].owner._id.equals(req.user?._id)) {
     throw new ApiError(401, "This video is private");
   }
@@ -168,9 +167,18 @@ const getVideoById = asyncHandler(async (req, res) => {
 
   if (isValidObjectId(req.user?._id)) {
     const user = await User.findById(req.user?._id);
-    if (user && !user.watchHistory[0]?.equals(videoId)) {
-      user.watchHistory = [...user.watchHistory, videoId];
-      user.save({ validateBeforeSave: false });
+
+    if (user) {
+      const subscriber = await Subscription.findOne({
+        subscriber: user._id,
+        channel: video[0].owner._id,
+      });
+      video[0].userHasSubscribed = Boolean(subscriber);
+
+      if (!user.watchHistory[0]?.equals(videoId)) {
+        user.watchHistory = [...user.watchHistory, videoId];
+        user.save({ validateBeforeSave: false });
+      }
     }
   }
 
