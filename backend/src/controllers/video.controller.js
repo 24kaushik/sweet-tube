@@ -6,6 +6,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { uploadOnCloudinary } from "../utils/Cloudinary.js";
+import { User } from "../models/user.model.js";
 
 const getAllVideos = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
@@ -77,7 +78,6 @@ const publishAVideo = asyncHandler(async (req, res) => {
 const getVideoById = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
   //TODO check if current user is logged in? send one more field "has Subscribed"
-  // push video id into watch history
   if (!isValidObjectId(videoId)) {
     throw new ApiError(400, "Please send a valid video id");
   }
@@ -165,6 +165,14 @@ const getVideoById = asyncHandler(async (req, res) => {
     throw new ApiError(401, "This video is private");
   }
   await Video.findByIdAndUpdate(videoId, { views: video[0].views + 1 });
+
+  if (isValidObjectId(req.user)) {
+    const user = await User.findById(req.user);
+    if (user && !user.watchHistory[0].equals(videoId)) {
+      user.watchHistory = [...user.watchHistory, videoId];
+      user.save({ validateBeforeSave: false });
+    }
+  }
 
   return res
     .status(200)

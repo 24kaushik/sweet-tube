@@ -34,7 +34,6 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
 });
 
 export const optionalVerifyJWT = asyncHandler(async (req, res, next) => {
-  // TODO: optionally log in user if user sends auth token
   try {
     const token =
       req.cookies?.accessToken ||
