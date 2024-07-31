@@ -161,14 +161,14 @@ const getVideoById = asyncHandler(async (req, res) => {
   }
 
   //TODO: Check if the video belongs to user? send the video even if unpublished
-  if (!video[0].isPublished) {
+  if (!video[0].isPublished && !video[0].owner._id.equals(req.user?._id)) {
     throw new ApiError(401, "This video is private");
   }
   await Video.findByIdAndUpdate(videoId, { views: video[0].views + 1 });
 
-  if (isValidObjectId(req.user)) {
-    const user = await User.findById(req.user);
-    if (user && !user.watchHistory[0].equals(videoId)) {
+  if (isValidObjectId(req.user?._id)) {
+    const user = await User.findById(req.user?._id);
+    if (user && !user.watchHistory[0]?.equals(videoId)) {
       user.watchHistory = [...user.watchHistory, videoId];
       user.save({ validateBeforeSave: false });
     }
@@ -280,7 +280,7 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Video does not exists");
   }
 
-  if (video.owner.equals(req.user._id)) {
+  if (!video.owner.equals(req.user._id)) {
     throw new ApiError(401, "Unauthorized access");
   }
 
