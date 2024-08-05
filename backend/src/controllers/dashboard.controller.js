@@ -37,22 +37,29 @@ const getChannelStats = asyncHandler(async (req, res) => {
 });
 
 const getChannelVideos = asyncHandler(async (req, res) => {
-  const { channelId } = req.params;
-  if (!isValidObjectId(channelId)) {
-    throw new ApiError(400, "Please provide a valid channel id");
+  const {  channelId  } = req.params;
+  if  (!isValidObjectId(channelId))  {
+    throw new ApiError(400, "Please provide a valid channel id");;
   }
 
   const channel = await User.findById(channelId);
-  if (!channel) {
-    throw new ApiError(404, "No channel found with this id");
+  if  (!channel)  {
+    throw new ApiError(404, "No channel found with this id");;
   }
 
   let videos = await Video.find({ owner: channelId });
   console.log(req.user?._id);
   if (!req.user?._id?.equals(channelId)) {
     videos = videos.filter((v) => v.isPublished);
+  let videos = await Video.find({ owner: channelId });
+  console.log(req.user?._id);
+  if (!req.user?._id?.equals(channelId)) {
+    videos = videos.filter((v) => v.isPublished);
   }
 
+  return res
+    .status(200)
+    .json(new ApiResponse(200, videos, "Videos fetched successfully"));
   return res
     .status(200)
     .json(new ApiResponse(200, videos, "Videos fetched successfully"));
