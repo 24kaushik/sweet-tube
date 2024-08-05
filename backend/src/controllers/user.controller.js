@@ -1,7 +1,10 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
-import { uploadOnCloudinary } from "../utils/Cloudinary.js";
+import {
+  deleteFromCloudinary,
+  uploadOnCloudinary,
+} from "../utils/Cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
@@ -281,19 +284,18 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
 
   const avatar = await uploadOnCloudinary(avatarLocalPath);
 
-  if (!avatar.url) {
+  if (!avatar?.url) {
     throw new ApiError(500, "Error while uploading avatar");
   }
 
-  const user = await User.findByIdAndUpdate(
-    req.user?._id,
-    {
-      $set: {
-        avatar: avatar.url,
-      },
+  const user = await User.findByIdAndUpdate(req.user?._id, {
+    $set: {
+      avatar: avatar.url,
     },
-    { new: true }
-  ).select("-password -refreshToken");
+  }).select("-password -refreshToken");
+
+  await deleteFromCloudinary(user.avatar);
+  user.avatar = avatar.url;
 
   return res
     .status(200)
@@ -321,9 +323,11 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
       $set: {
         coverImage: coverImage.url,
       },
-    },
-    { new: true }
+    }
   ).select("-password -refreshToken");
+
+  await deleteFromCloudinary(user.coverImage);
+  user.coverImage = coverImage.url;
 
   return res
     .status(200)

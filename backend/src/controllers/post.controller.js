@@ -5,7 +5,10 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { Like } from "../models/like.model.js";
 import { Comment } from "../models/comment.model.js";
-import { uploadOnCloudinary } from "../utils/Cloudinary.js";
+import {
+  deleteFromCloudinary,
+  uploadOnCloudinary,
+} from "../utils/Cloudinary.js";
 
 const createPost = asyncHandler(async (req, res) => {
   const { content } = req.body;
@@ -162,7 +165,12 @@ const updatePost = asyncHandler(async (req, res) => {
   }
 
   post.content = newContent.trim();
-  post.image = image?.url
+
+  if (image?.url && post.image) {
+    await deleteFromCloudinary(post.image);
+  }
+
+  post.image = image?.url;
   await post.save({ validateBeforeSave: false });
 
   return res
@@ -187,6 +195,9 @@ const deletePost = asyncHandler(async (req, res) => {
   }
 
   await Post.findByIdAndDelete(postId);
+  if (post.image) {
+    await deleteFromCloudinary(post.image);
+  }
   await Like.deleteMany({ post: postId });
   await Comment.deleteMany({ post: postId });
   return res

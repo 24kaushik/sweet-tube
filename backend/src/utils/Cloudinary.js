@@ -27,8 +27,22 @@ const uploadOnCloudinary = async (localFilePath) => {
   }
 };
 
-const deleteFromCloudinary = async ()=>{
-  //TODO while updating avatar, thumbnail,coverimage and deleting video, remove it from cloudinary too
-}
+const deleteFromCloudinary = async (url) => {
+  try {
+    if (typeof url !== "string") {
+      return false;
+    }
 
-export { uploadOnCloudinary };
+    const publicId = url.split("/").at(-1).split(".")[0];
+    const response = await cloudinary.uploader.destroy(publicId);
+
+    if (response?.result !== "ok") {
+      return false;
+    }
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
+
+export { uploadOnCloudinary, deleteFromCloudinary };

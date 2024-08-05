@@ -5,7 +5,7 @@ import { Comment } from "../models/comment.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { uploadOnCloudinary } from "../utils/Cloudinary.js";
+import { deleteFromCloudinary, uploadOnCloudinary } from "../utils/Cloudinary.js";
 import { User } from "../models/user.model.js";
 import { Subscription } from "../models/subscription.model.js";
 
@@ -246,6 +246,7 @@ const updateVideoThumbnail = asyncHandler(async (req, res) => {
     throw new ApiError(500, "Error uploading thumbnail");
   }
 
+  await deleteFromCloudinary(video.thumbnail)
   video.thumbnail = uploadedThumbnail.url;
   await video.save();
 
@@ -269,6 +270,8 @@ const deleteVideo = asyncHandler(async (req, res) => {
     throw new ApiError(401, "Unauthorized access");
   }
 
+  await deleteFromCloudinary(video.videoFile)
+  await deleteFromCloudinary(video.thumbnail)
   await Video.findByIdAndDelete(videoId);
   await Like.deleteMany({ video: videoId });
   await Comment.deleteMany({ video: videoId });
