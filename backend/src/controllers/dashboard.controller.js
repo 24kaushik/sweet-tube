@@ -8,29 +8,54 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../models/user.model.js";
 
 const getChannelStats = asyncHandler(async (req, res) => {
-  // TODO: Get the channel stats like total video views, total subscribers, total videos, total likes etc.
-
-});
-
-const getChannelVideos = asyncHandler(async (req, res) => {
-  const {channelId} = req.params;
-  if(!isValidObjectId(channelId)){
-    throw new ApiError(400, "Please provide a valid channel id")
+  const { channelId } = req.params;
+  if (!isValidObjectId(channelId)) {
+    throw new ApiError(400, "Please provide a valid channel id");
   }
 
   const channel = await User.findById(channelId);
-  if(!channel){
-    throw new ApiError(404, "No channel found with this id")
+  if (!channel) {
+    throw new ApiError(404, "No channel found with this id");
   }
 
-  let videos = await Video.find({owner: channelId})
-  console.log(req.user?._id)
-  if(!req.user?._id?.equals(channelId)){
-    videos = videos.filter(v=>v.isPublished)
+  let videos = await Video.find({ owner: channelId });
+  videos = videos.filter((v) => v.isPublished);
+  const subscribers = await Subscription.find({ channel: channelId });
+  const likesCount = await videos.reduce(async (prev, video) => {
+    const likes = await Like.find({ video: video._id });
+    return prev + likes.length;
+  }, 0);
+
+  const stats = {
+    totalViews: videos.reduce((prev, video) => prev + video.views, 0),
+    totalVideos: videos.length,
+    totalSubscribers: subscribers.length,
+    totalLikes: likesCount,
+  };
+
+  return res.status(200).json(new ApiResponse(200, stats, "Channel stats fetched successfully"));
+});
+
+const getChannelVideos = asyncHandler(async (req, res) => {
+  const { channelId } = req.params;
+  if (!isValidObjectId(channelId)) {
+    throw new ApiError(400, "Please provide a valid channel id");
   }
 
-  return res.status(200).json(new ApiResponse(200, videos, "Videos fetched successfully"))
+  const channel = await User.findById(channelId);
+  if (!channel) {
+    throw new ApiError(404, "No channel found with this id");
+  }
 
+  let videos = await Video.find({ owner: channelId });
+  console.log(req.user?._id);
+  if (!req.user?._id?.equals(channelId)) {
+    videos = videos.filter((v) => v.isPublished);
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, videos, "Videos fetched successfully"));
 });
 
 export { getChannelStats, getChannelVideos };
