@@ -32,11 +32,27 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
 
 const getPlaylistById = asyncHandler(async (req, res) => {
   const { playlistId } = req.params;
-  //TODO: get playlist by id
+  //TODO: use aggregation pipelines and replace video ids with actual video objects
+  if (!isValidObjectId(playlistId)) {
+    throw new ApiError(400, "Please provide a valid playlist id");
+  }
+
+  const playlist = await Playlist.findById(playlistId);
+  if (!playlist) {
+    throw new ApiError(404, "No playlist found with this id");
+  }
+  if (!playlist.owner.equals(req.user._id)) {
+    throw new ApiError(401, "You are not the owner of this playlist");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, playlist, "Playlist fetched successfully"));
 });
 
 const addVideoToPlaylist = asyncHandler(async (req, res) => {
   const { playlistId, videoId } = req.params;
+  //TODO
 });
 
 const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
