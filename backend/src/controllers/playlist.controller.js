@@ -33,7 +33,6 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
 
 const getPlaylistById = asyncHandler(async (req, res) => {
   const { playlistId } = req.params;
-  //TODO: use aggregation pipelines and replace video ids with actual video objects
   if (!isValidObjectId(playlistId)) {
     throw new ApiError(400, "Please provide a valid playlist id");
   }

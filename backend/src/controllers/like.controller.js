@@ -83,7 +83,12 @@ const togglePostLike = asyncHandler(async (req, res) => {
 });
 
 const getLikedVideos = asyncHandler(async (req, res) => {
-  //TODO: paginate
+  const { page = 1, limit = 10 } = req.query;
+  const pageOptions = {
+    page: parseInt(page, 10),
+    limit: parseInt(limit, 10),
+  };
+
   const likes = await Like.find({ likedBy: req.user._id });
   if (!likes?.length) {
     return res
@@ -96,7 +101,7 @@ const getLikedVideos = asyncHandler(async (req, res) => {
     videoIdArray.push(e.video);
   });
 
-  const likedVideos = await Video.aggregate([
+  const likedVideos = Video.aggregate([
     {
       $match: {
         _id: {
@@ -129,11 +134,12 @@ const getLikedVideos = asyncHandler(async (req, res) => {
       },
     },
   ]);
+  const paginatedData = await Video.aggregatePaginate(likedVideos, pageOptions);
 
   return res
     .status(200)
     .json(
-      new ApiResponse(200, likedVideos, "Liked videos fetched successfully")
+      new ApiResponse(200, paginatedData, "Liked videos fetched successfully")
     );
 });
 

@@ -10,13 +10,16 @@ import { Like } from "../models/like.model.js";
 const getVideoComments = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
   const { page = 1, limit = 10 } = req.query;
-  // TODO paginate
+  const pageOptions = {
+    page: parseInt(page, 10),
+    limit: parseInt(limit, 10),
+  };
 
   if (!isValidObjectId(videoId)) {
     throw new ApiError(400, "Please provide a valid video id");
   }
 
-  const comments = await Comment.aggregate([
+  const comments = Comment.aggregate([
     {
       $match: {
         video: new mongoose.Types.ObjectId(videoId),
@@ -72,10 +75,11 @@ const getVideoComments = asyncHandler(async (req, res) => {
       },
     },
   ]);
+  const paginatedData = await Comment.aggregatePaginate(comments, pageOptions);
 
   res
     .status(200)
-    .json(new ApiResponse(200, comments, "Comments fetched successfully"));
+    .json(new ApiResponse(200, paginatedData, "Comments fetched successfully"));
 });
 
 const addVideoComment = asyncHandler(async (req, res) => {
@@ -187,15 +191,18 @@ const deleteComment = asyncHandler(async (req, res) => {
 });
 
 const getPostComments = asyncHandler(async (req, res) => {
-  // TODO paginate
-
   const { postId } = req.params;
+  const { page = 1, limit = 10 } = req.query;
+  const pageOptions = {
+    page: parseInt(page, 10),
+    limit: parseInt(limit, 10),
+  };
 
   if (!isValidObjectId(postId)) {
     throw new ApiError(400, "Please provide a valid post id");
   }
 
-  const comments = await Comment.aggregate([
+  const comments = Comment.aggregate([
     {
       $match: {
         post: new mongoose.Types.ObjectId(postId),
@@ -251,10 +258,11 @@ const getPostComments = asyncHandler(async (req, res) => {
       },
     },
   ]);
+  const paginatedData = await Comment.aggregatePaginate(comments, pageOptions);
 
   res
     .status(200)
-    .json(new ApiResponse(200, comments, "Comments fetched successfully"));
+    .json(new ApiResponse(200, paginatedData, "Comments fetched successfully"));
 });
 
 export {

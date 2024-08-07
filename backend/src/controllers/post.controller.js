@@ -47,15 +47,18 @@ const createPost = asyncHandler(async (req, res) => {
 });
 
 const getUserPosts = asyncHandler(async (req, res) => {
-  // TODO: Paginate
-
   const { userId } = req.params;
+  const { page = 1, limit = 10 } = req.query;
+  const pageOptions = {
+    page: parseInt(page, 10),
+    limit: parseInt(limit, 10),
+  };
 
   if (!isValidObjectId(userId)) {
     throw new ApiError(400, "Please provide a valid user id");
   }
 
-  const posts = await Post.aggregate([
+  const posts = Post.aggregate([
     {
       $match: {
         owner: new mongoose.Types.ObjectId(userId),
@@ -119,14 +122,15 @@ const getUserPosts = asyncHandler(async (req, res) => {
       },
     },
   ]);
+  const paginatedData = await Post.aggregatePaginate(posts, pageOptions);
 
-  if (!posts.length) {
+  if (!paginatedData?.docs?.length) {
     throw new ApiError(404, "No posts found for this user");
   }
 
   return res
     .status(200)
-    .json(new ApiResponse(200, posts, "Posts fetched successfully"));
+    .json(new ApiResponse(200, paginatedData, "Posts fetched successfully"));
 });
 
 const updatePost = asyncHandler(async (req, res) => {
