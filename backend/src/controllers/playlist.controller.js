@@ -38,7 +38,50 @@ const getPlaylistById = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Please provide a valid playlist id");
   }
 
-  const playlist = await Playlist.findById(playlistId);
+  let playlist = await Playlist.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(playlistId),
+      },
+    },
+    {
+      $lookup: {
+        from: "videos",
+        localField: "videos",
+        foreignField: "_id",
+        as: "videos",
+        pipeline: [
+          {
+            $lookup: {
+              from: "users",
+              localField: "owner",
+              foreignField: "_id",
+              as: "owner",
+              pipeline: [
+                {
+                  $project: {
+                    _id: 1,
+                    fullName: 1,
+                    username: 1,
+                    avatar: 1,
+                  },
+                },
+              ],
+            },
+          },
+          {
+            $addFields: {
+              owner: {
+                $first: "$owner",
+              },
+            },
+          },
+        ],
+      },
+    },
+  ]);
+  playlist = playlist[0];
+
   if (!playlist) {
     throw new ApiError(404, "No playlist found with this id");
   }
