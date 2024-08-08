@@ -5,13 +5,74 @@ import { Comment } from "../models/comment.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { deleteFromCloudinary, uploadOnCloudinary } from "../utils/Cloudinary.js";
+import {
+  deleteFromCloudinary,
+  uploadOnCloudinary,
+} from "../utils/Cloudinary.js";
 import { User } from "../models/user.model.js";
 import { Subscription } from "../models/subscription.model.js";
 
 const getAllVideos = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
-  //TODO: get all videos based on query, sort, pagination
+  const pageOptions = {
+    page: parseInt(page, 10),
+    limit: parseInt(limit, 10),
+  };
+
+  const match = {};
+  if (query) {
+    match.title = { $regex: new RegExp(query, "i") }; 
+  }
+
+  if (userId) {
+    if (!isValidObjectId(userId)) {
+      throw new ApiError(400, "Please provide a valid user id");
+    }
+    match.owner = new mongoose.Types.ObjectId(userId);
+  }
+
+  const sortOptions = {};
+  if (sortBy === "createdAt") {
+    sortOptions.createdAt = sortType === "asc" ? 1 : -1;
+  } else {
+    sortOptions["views"] = sortType === "asc" ? 1 : -1;
+  }
+
+  const videos = Video.aggregate([
+    {
+      $match: match,
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "owner",
+        foreignField: "_id",
+        as: "owner",
+        pipeline: [
+          {
+            $project: {
+              username: 1,
+              fullname: 1,
+              avatar: 1,
+            },
+          },
+        ],
+      },
+    },
+    {
+      $addFields: {
+        owner: { $first: "$owner" },
+      },
+    },
+    {
+      $sort: sortOptions,
+    },
+  ]);
+  const paginatedData = await Video.aggregatePaginate(videos, pageOptions);
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, paginatedData, "Videos fetched successfully"));
 });
 
 const publishAVideo = asyncHandler(async (req, res) => {
@@ -246,7 +307,7 @@ const updateVideoThumbnail = asyncHandler(async (req, res) => {
     throw new ApiError(500, "Error uploading thumbnail");
   }
 
-  await deleteFromCloudinary(video.thumbnail)
+  await deleteFromCloudinary(video.thumbnail);
   video.thumbnail = uploadedThumbnail.url;
   await video.save();
 
@@ -270,8 +331,8 @@ const deleteVideo = asyncHandler(async (req, res) => {
     throw new ApiError(401, "Unauthorized access");
   }
 
-  await deleteFromCloudinary(video.videoFile)
-  await deleteFromCloudinary(video.thumbnail)
+  await deleteFromCloudinary(video.videoFile);
+  await deleteFromCloudinary(video.thumbnail);
   await Video.findByIdAndDelete(videoId);
   await Like.deleteMany({ video: videoId });
   await Comment.deleteMany({ video: videoId });
