@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import default_user from "../../assets/default-user.png";
 
 const Navbar = () => {
   const [isChecked, setIsChecked] = useState(null);
@@ -23,7 +24,7 @@ const Navbar = () => {
             SWEETUBE
           </div>
           <div className="flex items-center pr-3">
-            <label htmlFor="search">
+            <label htmlFor="search" className="cursor-pointer">
               <i
                 ref={iconRef}
                 className="fa-solid fa-magnifying-glass fa-xl px-2"
@@ -37,6 +38,13 @@ const Navbar = () => {
                 onClick={(e) => setIsChecked(e.target.checked)}
               />
             </label>
+            <a href="#">
+              <img
+                src={default_user}
+                alt="profile"
+                className="h-9 w-9 ml-2 rounded-full shadow-md cursor-pointer"
+              />
+            </a>
           </div>
         </div>
       </nav>
