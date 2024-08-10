@@ -9,7 +9,6 @@ const Navbar = () => {
 
   useEffect(() => {
     if (isChecked !== null) {
-      console.log(isChecked);
       navRef.current.classList.toggle("drop-shadow");
       searchRef.current.classList.toggle("hidden");
       iconRef.current.classList.toggle("fa-magnifying-glass");
