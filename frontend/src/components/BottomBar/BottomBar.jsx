@@ -26,11 +26,11 @@ const BottomBar = () => {
         <label htmlFor="bars">
           <i
             ref={barsRef}
-            className="fa-solid fa-bars fa-2xl text-gray-500 transition-all duration-200"
+            className="fa-solid fa-bars fa-2xl text-red-500 transition-all duration-200"
           ></i>
           <i
             ref={crossRef}
-            className="fa-solid fa-xmark fa-2xl opacity-0 absolute top-1/2 left-1/2 transform -translate-x-1/2 text-gray-500 transition-all duration-200"
+            className="fa-solid fa-xmark fa-2xl opacity-0 absolute top-1/2 left-1/2 transform -translate-x-1/2 text-red-500 transition-all duration-200"
           ></i>
           <input
             className="hidden"
@@ -43,7 +43,7 @@ const BottomBar = () => {
       </div>
       <div
         ref={menuRef}
-        className="absolute top-1/2 h-14 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[9] transition-all rounded-full bg-gray-50 shadow drop-shadow-md flex items-center justify-between opacity-0 duration-200 w-0 overflow-hidden text-gray-600"
+        className="absolute top-1/2 h-14 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[9] transition-all rounded-full bg-gray-50 shadow drop-shadow-md flex items-center justify-between opacity-0 duration-200 w-0 overflow-hidden text-red-500"
       >
         <div className="flex mx-7 space-x-4 -mb-4">
           <div className="flex flex-col items-center justify-center space-y-2">
@@ -68,15 +68,15 @@ const BottomBar = () => {
       </div>
       <div
         ref={createRef}
-        className="absolute z-[9] -top-36 left-1/2 transform -translate-x-1/2 text-center text-gray-500 flex flex-col space-y-3 p-2 overflow-hidden transition-all duration-200 opacity-0 translate-y-20"
+        className="absolute z-[9] -top-36 left-1/2 transform -translate-x-1/2 text-center text-red-500 flex flex-col space-y-3 p-2 overflow-hidden transition-all duration-200 opacity-0 translate-y-20"
       >
-        <div className="bg-white shadow drop-shadow-md rounded-full aspect-square w-14 flex flex-col items-center justify-center">
+        <div className="bg-gray-50 shadow drop-shadow-md rounded-full aspect-square w-14 flex flex-col items-center justify-center">
           <i className="fa-regular fa-plus fa-xl font-bold"></i>
-          <p className="-mb-4 mt-1 text-sm">post</p>
+          <p className="-mb-4 mt-1 text-sm">Post</p>
         </div>
-        <div className="bg-white shadow drop-shadow-md rounded-full aspect-square w-14 flex flex-col items-center justify-center">
+        <div className="bg-gray-50 shadow drop-shadow-md rounded-full aspect-square w-14 flex flex-col items-center justify-center">
           <i className="fa-regular fa-plus fa-xl font-bold"></i>
-          <p className="-mb-4 mt-1 text-sm">video</p>
+          <p className="-mb-4 mt-1 text-sm">Video</p>
         </div>
       </div>
     </div>
