@@ -21,9 +21,9 @@ const BottomBar = () => {
   }, [isChecked]);
 
   return (
-    <div className="fixed bottom-5 left-1/2 transform -translate-x-1/2">
-      <div className="relative z-10 h-[4.3rem] aspect-square bg-gray-50 shadow drop-shadow-md rounded-full flex items-center justify-center">
-        <label htmlFor="bars">
+    <div className="fixed bottom-5 left-1/2 transform -translate-x-1/2 cursor-pointer">
+      <label htmlFor="bars">
+        <div className="relative z-10 h-[4.3rem] aspect-square bg-gray-50 shadow drop-shadow-md rounded-full flex items-center justify-center cursor-pointer">
           <i
             ref={barsRef}
             className="fa-solid fa-bars fa-2xl text-red-500 transition-all duration-200"
@@ -39,8 +39,8 @@ const BottomBar = () => {
             id="bars"
             onClick={(e) => setIsChecked(e.target.checked)}
           />
-        </label>
-      </div>
+        </div>
+      </label>
       <div
         ref={menuRef}
         className="absolute top-1/2 h-14 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[9] transition-all rounded-full bg-gray-50 shadow drop-shadow-md flex items-center justify-between opacity-0 duration-200 w-0 overflow-hidden text-red-500"

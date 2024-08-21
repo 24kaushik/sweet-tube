@@ -10,7 +10,7 @@ const Home = () => {
   useEffect(() => {
     const myFunc = async () => {
       const resp = await fetch(
-        `http://192.168.31.21:6969/api/v1/videos/?page=${page}&limit=10&sortType=desc&sortBy=createdAt`
+        `${import.meta.env.VITE_BACKEND}/videos/?page=${page}&limit=10&sortType=desc&sortBy=createdAt`
       );
       const data = await resp.json();
       setVideoList(videoList.concat(data.data.docs));
@@ -21,7 +21,7 @@ const Home = () => {
 
   const fetchData = async () => {
     const resp = await fetch(
-      `http://192.168.31.21:6969/api/v1/videos/?page=${page + 1}&limit=10&sortType=desc&sortBy=createdAt`
+      `${import.meta.env.VITE_BACKEND}/videos/?page=${page + 1}&limit=10&sortType=desc&sortBy=createdAt`
     );
     setPage(page + 1);
     const data = await resp.json();
@@ -40,9 +40,10 @@ const Home = () => {
       >
         <div className="w-full min-h-[calc(100vh-4rem)] p-5 flex flex-wrap justify-evenly ">
           {!videoList.length ? <Loader /> : <></>}
-          {videoList.map((video, ind) => (
+          {videoList.map((video) => (
             <VideoCard
               key={video._id}
+              videoFile={video.videoFile}
               title={video.title}
               thumbnail={video.thumbnail}
               duration={video.duration}
