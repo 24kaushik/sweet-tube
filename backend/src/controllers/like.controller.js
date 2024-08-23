@@ -143,4 +143,6 @@ const getLikedVideos = asyncHandler(async (req, res) => {
     );
 });
 
+//TODO: a route to verify like
+
 export { toggleCommentLike, togglePostLike, toggleVideoLike, getLikedVideos };

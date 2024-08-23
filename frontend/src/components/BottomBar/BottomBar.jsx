@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import { Link } from "react-router-dom";
 
 const BottomBar = () => {
   const [isChecked, setIsChecked] = useState(null);
@@ -46,10 +47,12 @@ const BottomBar = () => {
         className="absolute top-1/2 h-14 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[9] transition-all rounded-full bg-gray-50 shadow drop-shadow-md flex items-center justify-between opacity-0 duration-200 w-0 overflow-hidden text-red-500"
       >
         <div className="flex mx-7 space-x-4 -mb-4">
-          <div className="flex flex-col items-center justify-center space-y-2">
-            <i className="fa-solid fa-house fa-xl"></i>
-            <p className="text-sm">Home</p>
-          </div>
+          <Link to="/">
+            <div className="flex flex-col items-center justify-center space-y-2">
+              <i className="fa-solid fa-house fa-xl"></i>
+              <p className="text-sm">Home</p>
+            </div>
+          </Link>
           <div className="flex flex-col items-center justify-center space-y-2">
             <i className="fa-brands fa-youtube fa-2xl scale-90 translate-y-px"></i>
             <p className="text-sm">Subs.</p>
