@@ -173,7 +173,7 @@ const getVideoById = asyncHandler(async (req, res) => {
           {
             $project: {
               username: 1,
-              fullname: 1,
+              fullName: 1,
               subscribersCount: 1,
               avatar: 1,
             },
