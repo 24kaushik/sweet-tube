@@ -21,7 +21,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
 
   const match = {};
   if (query) {
-    match.title = { $regex: new RegExp(query, "i") }; 
+    match.title = { $regex: new RegExp(query, "i") };
   }
 
   if (userId) {
@@ -198,6 +198,19 @@ const getVideoById = asyncHandler(async (req, res) => {
       },
     },
     {
+      $lookup: {
+        from: "likes",
+        localField: "_id",
+        foreignField: "video",
+        as: "userHasLiked",
+        pipeline: [{
+          $match:{
+            likedBy: new mongoose.Types.ObjectId("66aa31b59a19aa7aa5edab21")
+          }
+        }]
+      },
+    },
+    {
       $addFields: {
         owner: {
           $first: "$owner",
@@ -208,6 +221,13 @@ const getVideoById = asyncHandler(async (req, res) => {
         commentsCount: {
           $size: "$comments",
         },
+        userHasLiked: {
+          $cond: {
+            if:{ $gt: [{ $size: "$userHasLiked" }, 0] },
+            then: true,
+            else: false
+          }
+        }
       },
     },
     {
