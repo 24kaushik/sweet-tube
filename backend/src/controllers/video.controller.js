@@ -203,11 +203,13 @@ const getVideoById = asyncHandler(async (req, res) => {
         localField: "_id",
         foreignField: "video",
         as: "userHasLiked",
-        pipeline: [{
-          $match:{
-            likedBy: new mongoose.Types.ObjectId("66aa31b59a19aa7aa5edab21")
-          }
-        }]
+        pipeline: [
+          {
+            $match: {
+              likedBy: req.user?._id,
+            },
+          },
+        ],
       },
     },
     {
@@ -223,11 +225,11 @@ const getVideoById = asyncHandler(async (req, res) => {
         },
         userHasLiked: {
           $cond: {
-            if:{ $gt: [{ $size: "$userHasLiked" }, 0] },
+            if: { $gt: [{ $size: "$userHasLiked" }, 0] },
             then: true,
-            else: false
-          }
-        }
+            else: false,
+          },
+        },
       },
     },
     {
