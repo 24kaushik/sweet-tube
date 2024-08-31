@@ -19,7 +19,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
     limit: parseInt(limit, 10),
   };
 
-  const match = {};
+  const match = { isPublished: true };
   if (query) {
     match.title = { $regex: new RegExp(query, "i") };
   }

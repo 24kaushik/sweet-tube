@@ -130,8 +130,9 @@ const loginUser = asyncHandler(async (req, res) => {
   );
 
   const options = {
+    sameSite: 'Strict',
     httpOnly: true,
-    secure: true,
+    // secure: true,
   };
 
   return res
@@ -165,8 +166,9 @@ const logoutUser = asyncHandler(async (req, res) => {
   );
 
   const options = {
+    sameSite: 'Strict',
     httpOnly: true,
-    secure: true,
+    // secure: true,
   };
 
   return res
@@ -201,8 +203,9 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
   }
 
   const options = {
+    sameSite: 'Strict',
     httpOnly: true,
-    secure: true,
+    // secure: true,
   };
 
   const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
