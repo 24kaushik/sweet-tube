@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import default_user from "../../assets/default-user.png";
+import { useUser } from "../../context/UserContext";
 
 const Navbar = () => {
   const [isChecked, setIsChecked] = useState(null);
@@ -15,6 +16,9 @@ const Navbar = () => {
       iconRef.current.classList.toggle("fa-xmark");
     }
   }, [isChecked]);
+
+  // const {user} = useUser();
+  // console.log(user)
   return (
     <div>
       <nav ref={navRef} className="bg-red-500 h-16 drop-shadow">
