@@ -52,6 +52,21 @@ const getVideoComments = asyncHandler(async (req, res) => {
       },
     },
     {
+      $lookup: {
+        from: "likes",
+        localField: "_id",
+        foreignField: "comment",
+        as: "userHasLiked",
+        pipeline: [
+          {
+            $match: {
+              likedBy: req.user?._id,
+            },
+          },
+        ],
+      },
+    },
+    {
       $addFields: {
         owner: {
           $first: "$owner",
@@ -61,6 +76,13 @@ const getVideoComments = asyncHandler(async (req, res) => {
         },
         isOwner: {
           $eq: [req.user?._id, { $first: "$owner._id" }],
+        },
+        userHasLiked: {
+          $cond: {
+            if: { $gt: [{ $size: "$userHasLiked" }, 0] },
+            then: true,
+            else: false,
+          },
         },
       },
     },
@@ -72,6 +94,7 @@ const getVideoComments = asyncHandler(async (req, res) => {
         updatedAt: 1,
         likesCount: 1,
         isOwner: 1,
+        userHasLiked: 1,
       },
     },
   ]);
@@ -235,6 +258,21 @@ const getPostComments = asyncHandler(async (req, res) => {
       },
     },
     {
+      $lookup: {
+        from: "likes",
+        localField: "_id",
+        foreignField: "post",
+        as: "userHasLiked",
+        pipeline: [
+          {
+            $match: {
+              likedBy: req.user?._id,
+            },
+          },
+        ],
+      },
+    },
+    {
       $addFields: {
         owner: {
           $first: "$owner",
@@ -244,6 +282,13 @@ const getPostComments = asyncHandler(async (req, res) => {
         },
         isOwner: {
           $eq: [req.user?._id, { $first: "$owner._id" }],
+        },
+        userHasLiked: {
+          $cond: {
+            if: { $gt: [{ $size: "$userHasLiked" }, 0] },
+            then: true,
+            else: false,
+          },
         },
       },
     },
@@ -255,6 +300,7 @@ const getPostComments = asyncHandler(async (req, res) => {
         updatedAt: 1,
         likesCount: 1,
         isOwner: 1,
+        userHasLiked: 1,
       },
     },
   ]);
