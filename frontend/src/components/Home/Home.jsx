@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import VideoCard from "../Video/VideoCard";
 import InfiniteScroll from "react-infinite-scroll-component";
+import Loader from "../Loader/Loader";
+import EndMessage from "../Loader/EndMessage";
 
 const Home = () => {
   const [page, setPage] = useState(1);
@@ -43,6 +45,7 @@ const Home = () => {
           {videoList.map((video) => (
             <VideoCard
               key={video._id}
+              id={video._id}
               videoFile={video.videoFile}
               title={video.title}
               thumbnail={video.thumbnail}
@@ -58,20 +61,5 @@ const Home = () => {
   );
 };
 
-const EndMessage = () => {
-  return (
-    <div className="text-center text-gray-400 mb-5">
-      Congrats!, youv'e reached the end.
-    </div>
-  );
-};
-
-const Loader = () => {
-  return (
-    <div className="mb-5 flex w-full items-center justify-center">
-      <div className="w-10 h-10 border-t-[.5em] border-b-[.5em] border-[.5em] border-t-red-400 border-b-red-400 rounded-full animate-spin"></div>
-    </div>
-  );
-};
 
 export default Home;
