@@ -8,6 +8,7 @@ import Theater from "./components/Theater/Theater";
 import Alert from "./components/Alert/Alert";
 import { useState } from "react";
 import UserProvider from "./context/UserContext";
+import Profile from "./components/Profile/Profile";
 
 function App() {
   const [alert, setAlert] = useState({ content: "", type: "regular" });
@@ -28,6 +29,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/watch/:videoId" element={<Theater />} />
+          <Route path="/profile/:userId" element={<Profile />} />
         </Routes>
         <Alert alert={alert} />
         <BottomBar />
