@@ -7,6 +7,24 @@ const Profile = () => {
   return (
     <div className="min-h-[calc(100vh-4rem)]">
       <Hero />
+      {/* ***********   Selector   *********** */}
+      <div>
+        <div className="w-1/2 mx-auto p-3 bg-gray-100 rounded-lg">
+          <ul className="text-sm font-medium text-center text-gray-500 rounded-lg shadow flex dark:divide-gray-700 dark:text-gray-400">
+            <li className="w-full focus-within:z-10">
+              <button className="inline-block w-full px-1 py-1.5 text-gray-900 bg-white border-r border-gray-200 rounded-s-lg focus:ring-4 focus:ring-blue-300 active focus:outline-none ">
+                Videos
+              </button>
+            </li>
+
+            <li className="w-full focus-within:z-10">
+              <button className="inline-block w-full px-1 py-1.5 text-gray-900 bg-gray-200 border-s-0 border-gray-200  rounded-e-lg focus:ring-4 focus:outline-none focus:ring-blue-300 ">
+                Posts
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
   );
 };
@@ -20,7 +38,7 @@ const Hero = ({
   isSubscribed,
 }) => {
   return (
-    <div className="pb-2 shadow-md">
+    <div className="pb-2 mb-4 shadow-md">
       <div className="bg-violet-400 aspect-[1546/423] sm:aspect-[1855/423] md:aspect-[2560/423] border-b-4 border-white">
         <img
           className="h-full w-full object-cover"
