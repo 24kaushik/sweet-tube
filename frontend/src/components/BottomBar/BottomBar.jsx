@@ -22,7 +22,7 @@ const BottomBar = () => {
   }, [isChecked]);
 
   return (
-    <div className="fixed bottom-5 left-1/2 transform -translate-x-1/2 cursor-pointer">
+    <div className="fixed z-40 bottom-5 left-1/2 transform -translate-x-1/2 cursor-pointer">
       <label htmlFor="bars">
         <div className="relative z-10 h-[4.3rem] aspect-square bg-gray-50 shadow drop-shadow-md rounded-full flex items-center justify-center cursor-pointer">
           <i
