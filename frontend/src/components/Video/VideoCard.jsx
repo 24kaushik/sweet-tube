@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { calcUploadTime } from "../../utils/timeCalculator";
+import { calculateDuration, calcUploadTime } from "../../utils/timeCalculator";
 
 const VideoCard = ({
   id,
@@ -11,12 +11,7 @@ const VideoCard = ({
   owner,
   createdAt,
 }) => {
-  const calculateDuration = (dur) => {
-    const time = Math.floor(dur);
-    const minutes = Math.floor(time / 60);
-    const seconds = time % 60;
-    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
-  };
+ 
   return (
     <Link to={`/watch/${id}`}>
       <div className="max-w-sm my-2 bg-white border border-gray-200 rounded-lg shadow cursor-pointer dark:bg-gray-800 dark:border-gray-700 hover:shadow-lg hover:scale-[101%] transition-all">

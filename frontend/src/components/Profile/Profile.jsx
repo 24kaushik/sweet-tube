@@ -1,8 +1,33 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import { useParams } from "react-router-dom";
+import VideoList from "../Video/VideoList";
+import PostCard from "../Post/PostCard";
 
 const Profile = () => {
   const { userId } = useParams();
+  const videoBtnRef = useRef(null);
+  const postBtnRef = useRef(null);
+  const [videoArr, setVideosArr] = useState([1, 2, 3]);
+  const [selected, setSelected] = useState(true); // true=>videos; false=>posts;
+
+  //Functions
+  const fetchVideos = () => {
+    console.log("Fetching videos...");
+  };
+
+  // Handlers
+  const handleVideo = () => {
+    if (!selected) {
+      fetchVideos();
+      setSelected(true);
+    }
+  };
+  const handlePost = () => {
+    if (selected) {
+      fetchVideos();
+      setSelected(false);
+    }
+  };
 
   return (
     <div className="min-h-[calc(100vh-4rem)]">
@@ -12,19 +37,29 @@ const Profile = () => {
         <div className="w-1/2 mx-auto p-3 bg-gray-100 rounded-lg">
           <ul className="text-sm font-medium text-center text-gray-500 rounded-lg shadow flex dark:divide-gray-700 dark:text-gray-400">
             <li className="w-full focus-within:z-10">
-              <button className="inline-block w-full px-1 py-1.5 text-gray-900 bg-white border-r border-gray-200 rounded-s-lg focus:ring-4 focus:ring-blue-300 active focus:outline-none ">
+              <button
+                ref={videoBtnRef}
+                onClick={handleVideo}
+                className={`inline-block w-full px-1 py-1.5 text-gray-900 ${selected ? "bg-white" : "bg-gray-200"} border-r border-gray-200 rounded-s-lg focus:ring-4 focus:ring-blue-300 active focus:outline-none active:scale-90`}
+              >
                 Videos
               </button>
             </li>
 
             <li className="w-full focus-within:z-10">
-              <button className="inline-block w-full px-1 py-1.5 text-gray-900 bg-gray-200 border-s-0 border-gray-200  rounded-e-lg focus:ring-4 focus:outline-none focus:ring-blue-300 ">
+              <button
+                ref={postBtnRef}
+                onClick={handlePost}
+                className={`inline-block w-full px-1 py-1.5 text-gray-900 ${!selected ? "bg-white" : "bg-gray-200"} border-s-0 border-gray-200  rounded-e-lg focus:ring-4 focus:outline-none focus:ring-blue-300 active:scale-90`}
+              >
                 Posts
               </button>
             </li>
           </ul>
         </div>
       </div>
+
+      {selected ? <Videos videoArr={videoArr} /> : <Posts />}
     </div>
   );
 };
@@ -67,6 +102,29 @@ const Hero = ({
           Subscribe
         </button>
       </div>
+    </div>
+  );
+};
+
+const Videos = ({ videoArr }) => {
+  return (
+    <div className="mx-3 my-6 md:mx-6">
+      {videoArr.map((elem, ind) => (
+        <VideoList key={ind} />
+      ))}
+    </div>
+  );
+};
+
+const Posts = () => {
+  return (
+    <div className="m-5 flex flex-wrap justify-center items-center">
+      <PostCard />
+      <PostCard />
+      <PostCard />
+      <PostCard />
+      <PostCard />
+      <PostCard />
     </div>
   );
 };
